@@ -1,4 +1,5 @@
 Commit 1 Reflection notes:
+
 Mengembangkan sebuah web server tunggal-utas dengan Rust merupakan langkah awal yang krusial dalam perjalanan membangun sebuah aplikasi server yang handal. Melalui penggunaan std::net::TcpListener, saya mulai dengan mendengarkan koneksi masuk dari jaringan. Fungsi utama mengikat server pada alamat IP dan port tertentu (127.0.0.1:7878), menandakan server siap menerima koneksi TCP. Saat koneksi berhasil terestabilkan, server akan memberikan respons sederhana berupa pesan "Connection established!" yang ditampilkan pada konsol. Meskipun tahap ini masih sangat dasar, namun sangat penting sebagai batu loncatan untuk memahami bagaimana koneksi TCP bekerja serta model pemrograman Rust.
 
 Setelah server dijalankan dan diakses melalui browser pada http://127.0.0.1:7878, saya bisa melihat bahwa implementasi awal saya belum mampu memberikan respons kepada browser. Ini mengajarkan saya pentingnya tidak hanya menerima koneksi, tetapi juga memprosesnya dengan tepat.
@@ -8,6 +9,7 @@ Pengenalan fungsi handle_connection merupakan langkah pengembangan berikutnya ya
 Melalui pencapaian ini, saya belajar tentang pentingnya memproses koneksi dengan efektif dan mengenal konsep-konsep kunci serta modul-modul standar perpustakaan Rust. Peringatan tentang variabel yang tidak digunakan dan saran yang diberikan oleh kompiler Rust menyoroti fokus bahasa terhadap keselamatan dan efisiensi. Dengan mengatasi peringatan ini, pengembang dapat menyempurnakan kode mereka, mengikuti praktik terbaik dan mengoptimalkan kinerja.
 
 Commit 2 Reflection notes:
+
 Pada Milestone kedua ini, saya telah membuat kemajuan signifikan dalam pengembangan server web saya dengan Rust. Modifikasi pada metode handle_connection memungkinkan server tidak hanya menerima koneksi masuk tetapi juga merespons dengan halaman HTML sederhana yang dapat dirender oleh browser. Perubahan ini mengubah server dari hanya menampilkan pesan di konsol menjadi server web yang dapat melayani konten web.
 
 Penggunaan Rust's file system module (fs) untuk membaca konten file HTML dan kemudian mengirimkannya sebagai respons ke browser merupakan langkah penting. Ini memperkenalkan konsep penting dalam pengembangan web, yaitu pelayanan konten statis. Melalui format string yang efisien, server sekarang mampu mengirimkan status line, headers seperti Content-Length, dan konten HTML itu sendiri ke klien. Penggunaan Content-Length di headers adalah contoh bagaimana HTTP headers digunakan untuk memberikan informasi penting tentang respons kepada klien, dalam hal ini ukuran dari konten yang dikirim.
@@ -26,3 +28,17 @@ Ketika server menerima permintaan GET / HTTP/1.1, yang merupakan permintaan untu
 Namun, jika server menerima permintaan untuk jalur yang tidak dikenali, seperti /bad, maka logika baru yang diperkenalkan akan mengaktifkan blok else. Di sini, server mengembalikan respons dengan status 404 NOT FOUND dan konten dari file 404.html, memberitahu pengguna bahwa halaman yang diminta tidak dapat ditemukan. Hal ini penting untuk memberikan feedback yang jelas kepada pengguna saat mereka mencoba mengakses halaman yang tidak ada atau salah ketik URL.
 
 Penerapan respons 404 ini tidak hanya meningkatkan keamanan server dengan menghindari pengungkapan informasi tentang struktur direktori internal atau file yang tidak seharusnya diakses secara publik, tapi juga meningkatkan pengalaman pengguna dengan menyediakan pesan kesalahan yang lebih informatif dan ramah. ![Commit 3 screen capture](/assets/images/commit3.png)
+
+Commit 4 Reflection notes:
+
+Milestone keempat ini menghadirkan simulasi yang sangat berguna untuk memahami keterbatasan dari server web berbasis single-thread yang kita kembangkan dengan Rust. Dengan menambahkan simulasi respons lambat pada salah satu jalur endpoint, yaitu /sleep, kita dapat melihat secara langsung bagaimana satu permintaan yang memakan waktu lebih lama dapat mempengaruhi kemampuan server untuk merespons permintaan lain.
+
+Pada modifikasi kode yang diperkenalkan, permintaan ke /sleep menyebabkan server menjeda selama 10 detik sebelum merespons. Ini dilakukan melalui fungsi thread::sleep(Duration::from_secs(10));, yang menghentikan eksekusi thread saat ini untuk durasi yang ditentukan. Ketika sebuah permintaan ke /sleep diterima, semua permintaan lain yang datang ke server selama periode tersebut harus menunggu, termasuk permintaan ke / yang seharusnya dapat dilayani hampir seketika.
+
+Melalui eksperimen ini, kita dapat mengamati dan memahami beberapa konsep penting dalam pengembangan aplikasi web server, yaitu:
+
+1. Batasan Single-thread: Server single-thread memproses permintaan satu demi satu dalam urutan yang diterima. Ini berarti bahwa permintaan yang lambat atau berat dapat memblokir eksekusi permintaan berikutnya, menciptakan bottleneck pada kinerja server.
+2. Pentingnya Concurrency: Dalam lingkungan produksi, server web harus mampu menangani banyak permintaan secara bersamaan tanpa membiarkan satu permintaan lambat menghambat yang lain. Ini biasanya dicapai melalui model multi-threading atau asynchronous I/O.
+3. User Experience: Waktu respons server yang lambat dapat berdampak negatif pada pengalaman pengguna, yang menjadikannya faktor penting dalam desain dan optimisasi server web.
+
+Eksperimen ini mengilustrasikan bagaimana desain arsitektur server yang tidak mempertimbangkan concurrency dapat menghadapi masalah skalabilitas saat traffic meningkat. Meskipun untuk tujuan pengembangan dan pembelajaran, model single-thread ini berguna untuk memahami dasar-dasar pengolahan permintaan HTTP, penting untuk mengeksplorasi model concurrency dan asynchronous processing dalam pembuatan aplikasi web server yang siap produksi.
