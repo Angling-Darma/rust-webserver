@@ -42,3 +42,16 @@ Melalui eksperimen ini, kita dapat mengamati dan memahami beberapa konsep pentin
 3. User Experience: Waktu respons server yang lambat dapat berdampak negatif pada pengalaman pengguna, yang menjadikannya faktor penting dalam desain dan optimisasi server web.
 
 Eksperimen ini mengilustrasikan bagaimana desain arsitektur server yang tidak mempertimbangkan concurrency dapat menghadapi masalah skalabilitas saat traffic meningkat. Meskipun untuk tujuan pengembangan dan pembelajaran, model single-thread ini berguna untuk memahami dasar-dasar pengolahan permintaan HTTP, penting untuk mengeksplorasi model concurrency dan asynchronous processing dalam pembuatan aplikasi web server yang siap produksi.
+
+Commit 5 Reflection notes:
+
+
+Milestone kelima ini merupakan langkah signifikan dalam evolusi server web yang kita kembangkan dengan Rust, membawa kita pada implementasi multi-threading yang meningkatkan kemampuan server dalam menangani permintaan secara simultan. Dengan memperkenalkan ThreadPool, server kini mampu memproses lebih dari satu permintaan pada satu waktu, mengatasi keterbatasan dari model single-thread yang telah kita eksplor sebelumnya.
+
+Implementasi ThreadPool ini didasarkan pada beberapa konsep penting dalam pemrograman paralel dan konkuren:
+
+mpsc (multiple producer, single consumer) digunakan untuk membuat channel komunikasi antara thread utama (yang menerima permintaan) dan thread pekerja dalam pool. Hal ini memungkinkan server untuk mendelegasikan pekerjaan kepada thread pekerja yang tersedia.
+Arc (Atomic Reference Counting) dan Mutex (Mutual Exclusion) digunakan bersama untuk membagi akses ke receiver di antara beberapa thread secara aman. Arc memungkinkan receiver untuk dibagi antara beberapa pemilik (thread pekerja), dan Mutex memberikan akses eksklusif ke receiver, memastikan bahwa hanya satu thread yang dapat membaca dari channel pada satu waktu.
+Penggunaan ThreadPool memungkinkan server untuk merespons permintaan /sleep yang memerlukan waktu lebih lama tanpa menghalangi permintaan lain untuk diproses. Sebagai contoh, ketika satu thread pekerja sedang menangani permintaan /sleep, permintaan lain ke / dapat langsung diteruskan ke thread pekerja lain yang tersedia, meningkatkan throughput dan efisiensi server.
+
+Perubahan ini tidak hanya meningkatkan performa dan skalabilitas server tetapi juga memberikan pengalaman pengguna yang lebih baik, dengan mengurangi waktu tunggu untuk pemrosesan permintaan. Selain itu, penerapan ThreadPool memberikan dasar yang kuat untuk pengembangan lebih lanjut, menjadikan server lebih siap untuk lingkungan produksi yang menuntut kemampuan untuk menangani banyak permintaan secara efisien.

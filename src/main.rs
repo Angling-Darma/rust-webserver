@@ -1,3 +1,4 @@
+use rust_webserver::ThreadPool;
 use std::{
     fs,
     io::{prelude::*, BufReader},
@@ -7,9 +8,12 @@ use std::{
    };
    fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let pool = ThreadPool::new(3);
     for stream in listener.incoming() { 
         let stream = stream.unwrap();
-        handle_connection(stream); }
+        pool.execute(|| {
+            handle_connection(stream);
+        }); }
    }
    fn handle_connection(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
