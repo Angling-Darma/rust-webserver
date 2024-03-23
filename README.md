@@ -16,3 +16,13 @@ Proses ini menyoroti bagaimana protokol HTTP beroperasi dan bagaimana server web
 
 Selain itu, pengalaman ini mengajarkan tentang pentingnya pengujian lokal dan modifikasi konten. Mengedit file hello.html untuk menyesuaikan pesan yang ditampilkan oleh server memperkenalkan konsep pengembangan web iteratif, di mana pengembang secara berkala memodifikasi dan menguji perubahan mereka untuk mencapai hasil yang diinginkan.
 ![Commit 2 screen capture](/assets/images/commit2.png)
+
+Commit 3 Reflection notes:
+
+Milestone ketiga dalam pengembangan server web kita dengan Rust membawa kita pada tingkat baru dalam hal kefleksibelan dan keamanan: validasi permintaan dan respons selektif. Perubahan ini memperkenalkan logika untuk membedakan antara permintaan yang valid dan tidak valid dari klien. Sebelumnya, server kita akan mengembalikan konten HTML tanpa mempertimbangkan jenis permintaan yang dibuat oleh browser. Dengan penambahan fungsi untuk memeriksa apakah permintaan tersebut adalah untuk jalur /, server kita sekarang dapat merespons secara berbeda tergantung pada permintaan yang diterima.
+
+Ketika server menerima permintaan GET / HTTP/1.1, yang merupakan permintaan untuk halaman utama, ia mengembalikan konten dari file hello.html dengan status 200 OK. Ini menunjukkan bahwa permintaan telah berhasil diproses dan konten yang diminta tersedia. Perubahan ini menjaga fungsi dasar server kita dalam melayani halaman utama.
+
+Namun, jika server menerima permintaan untuk jalur yang tidak dikenali, seperti /bad, maka logika baru yang diperkenalkan akan mengaktifkan blok else. Di sini, server mengembalikan respons dengan status 404 NOT FOUND dan konten dari file 404.html, memberitahu pengguna bahwa halaman yang diminta tidak dapat ditemukan. Hal ini penting untuk memberikan feedback yang jelas kepada pengguna saat mereka mencoba mengakses halaman yang tidak ada atau salah ketik URL.
+
+Penerapan respons 404 ini tidak hanya meningkatkan keamanan server dengan menghindari pengungkapan informasi tentang struktur direktori internal atau file yang tidak seharusnya diakses secara publik, tapi juga meningkatkan pengalaman pengguna dengan menyediakan pesan kesalahan yang lebih informatif dan ramah. ![Commit 3 screen capture](/assets/images/commit3.png)
